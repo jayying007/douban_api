@@ -109,7 +109,7 @@ const Detail = {
         //评分
         let rating = trims($content.find('.rating_wrap .rating_num').text());
         //内容简介
-        let content_intro = trims($content.find('.related-info #link-report span').text());
+        let content_intro = trims($content.find('.related-info #link-report-intra span').text());
         //演职员
         let acting_staff = [];
         $content.find('#celebrities .celebrities-list .celebrity').each((i, item) => {
