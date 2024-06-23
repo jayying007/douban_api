@@ -50,7 +50,7 @@ const List = {
             //摘要
             let abstract = List._abstractHandle(_$, catNum);
             let _data = {
-                cover_link,
+                "detail_url": cover_link,
                 cover,
                 rating,
                 ...abstract

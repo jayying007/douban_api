@@ -234,6 +234,12 @@
 }
 ```
 
+### 游戏
+接口和其他的类似，不过无法分页请求。
+
+- 搜索游戏：/game/list?key=
+- 查询游戏详情：/game/detail?url=
+
 ## 其他
 ### 跨域配置
 - 修改/config/config.js文件中的`corsWhiteList`字段，在数组中增加需要跨域的域名，如：http://lxqnsys.com
