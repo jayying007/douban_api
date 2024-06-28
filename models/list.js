@@ -8,23 +8,26 @@ const List = {
      * @memberof Book
      */
     async list(req, res, baseUrl, catNum, pageSize) {
-        let startTime = Date.now();
         let resData = {
             status: false,
             msg: '',
             data: null
         }
+
         let key = req.query.key;
-        let page = toNum(req.query.page, 1);
         if (!key) {
             resData.msg = '参数有误';
             res.json(resData);
             return false;
         }
+
+        let startTime = Date.now();
+        let page = toNum(req.query.page, 1);
         let _url = `${baseUrl}?search_text=${encodeURIComponent(key)}&cat=${catNum}&start=${(page - 1) * pageSize}`;
         let $ = await load(_url);
         let _data = List.listAnalysis($, catNum);
         let endTime = Date.now();
+
         resData = {
             status: true,
             msg: '获取成功',
@@ -49,34 +52,16 @@ const List = {
             let rating = _$.find('.rating_nums').text();
             //摘要
             let abstract = List._abstractHandle(_$, catNum);
+            
             let _data = {
                 "detail_url": cover_link,
-                cover,
+                "image_url": cover,
                 rating,
                 ...abstract
             };
-            if (List._filter(_data, catNum)) {
-                data.push(_data);
-            }
+            data.push(_data);
         });
         return data;
-    },
-
-    /**
-     *  过滤符合条件的项
-     *
-     * @param {*} _data
-     * @param {*} catNum
-     * @returns
-     */
-    _filter(_data, catNum) {
-        if (catNum === '1001') {
-            return _data.cover && _data.cover_link && _data.author;
-        } else if (catNum === '1002') {
-            return !!_data.year;
-        } else if (catNum === '1003') {
-            return !!_data.date;
-        }
     },
 
     //摘要信息处理
@@ -87,61 +72,20 @@ const List = {
     //书籍摘要信息处理
     _abstractHandle_1001(_$) {
         log('书籍摘要信息处理');
-        let abstract = _$.find('.meta.abstract').text();
-        if (!abstract) {
-            return {};
-        }
+        
         let title = _$.find('.title-text').text();
-        let author = '';
-        let press = '';
-        let date = '';
-        let price = '';
-        let arr = abstract.split('/');
-        if (arr.length < 4) {
-            return {};
-        }
-        arr = arr.map((item) => {
-            return item.trim();
-        });
-        price = arr.pop();
-        date = arr.pop();
-        press = arr.pop();
-        author = arr.join('/');
-        return { title, author, press, date, price };
+        let abstract = _$.find('.meta.abstract').text();
+        return { title, abstract };
     },
 
     //影视摘要信息处理
     _abstractHandle_1002(_$) {
         log('影视摘要信息处理');
+
+        let title = _$.find('.title-text').text();
         let abstract = _$.find('.meta.abstract').text();
-        let abstract2 = _$.find('.meta.abstract_2').text();
-        if (!abstract && !abstract2) {
-            return {};
-        }
-        let _title = _$.find('.title-text').text();
-        let _titleArr = _title.match(/^(.*)(\(\d+\))$/);
-        let title = _titleArr && _titleArr.length >= 3 ? _titleArr[1] : _title;
-        let year = _titleArr && _titleArr.length >= 3 ? _titleArr[2].replace(/[\(\)]/g, '') : '';
-        let country = '';
-        let type = [];
-        let duration = '';
-        let actors = '';
-        //基本信息
-        if (abstract) {
-            let arr = abstract.split('/').map((item) => {
-                return item.trim();
-            });
-            country = arr.shift();
-            duration = arr.pop();
-            type = arr;
-        }
-        //主演列表
-        if (abstract2) {
-            actors = abstract2.split('/').map((item) => {
-                return item.trim();
-            });
-        }
-        return { title, country, type, duration, year, actors };
+        let actors = _$.find('.meta.abstract_2').text();
+        return { title, abstract, actors };
     },
 
     //音乐摘要信息处理

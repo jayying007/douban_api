@@ -10,20 +10,23 @@ const Detail = {
      * @memberof Music
      */
     async detail(req, res, catNum) {
-        let startTime = Date.now();
         let resData = {
             status: false,
             msg: '',
             data: null
         }
+
         let url = req.query.url;
         if (!url) {
             resData.msg = '参数有误';
             res.json(resData);
             return false;
         }
+
+        let startTime = Date.now();
         let data = await Detail._detail(url, catNum);
         let endTime = Date.now();
+
         resData = {
             status: true,
             msg: '获取成功',
@@ -35,7 +38,6 @@ const Detail = {
 
     //获取某本书籍的详细信息
     async _detail(url, catNum) {
-
         return await Detail['_detailHandle_' + catNum](url);
     },
 
@@ -58,40 +60,13 @@ const Detail = {
         let $content_intro_all = $content.find('.related_info #link-report .all .intro');
         let content_intro = $content_intro_all.length > 0 ? $content_intro_all.text() : $intro.length > 0 ? $intro.eq(0).text() : '';
         content_intro = trims(content_intro);
-        //作者简介
-        let author_intro = $content_intro_all.length > 0 ? $intro.eq(2).text() : $intro.length > 1 ? $intro.eq(1).text() : '';
-        author_intro = trims(author_intro);
-        //目录
-        let $dir_full = null;
-        $content.find('.related_info .indent').each((i, item) => {
-            let _id = $(item).attr('id');
-            let _reg = /^dir_\d+_full$/;
-            if (_reg.test(_id)) {
-                $dir_full = $(item);
-            }
-        });
-        let dirs = [];
-        if ($dir_full) {
-            $dir_full.text().split(/\n\s*/img).forEach((item) => {
-                if (item && !/^·[·\s]+\(收起\)$/.test(item)) {
-                    dirs.push(item);
-                }
-            });
-        }
-        //标签
-        let tags = [];
-        $content.find('#db-tags-section .tag').each((i, item) => {
-            tags.push($(item).text());
-        });
+
         return {
             title,
-            pic,
+            "image_url": pic,
             ...info,
             rating,
-            content_intro,
-            author_intro,
-            dirs,
-            tags
+            "desc": content_intro
         }
     },
 
@@ -99,9 +74,9 @@ const Detail = {
     async _detailHandle_1002(url) {
         let $ = await load(url);
         let $wrap = $('#wrapper');
+        let $content = $wrap.find('#content');
         //标题
         let title = $wrap.find('h1 span').text();
-        let $content = $wrap.find('#content');
         //图片
         let pic = $content.find('#mainpic img').attr('src');
         //信息
@@ -109,31 +84,14 @@ const Detail = {
         //评分
         let rating = trims($content.find('.rating_wrap .rating_num').text());
         //内容简介
-        let content_intro = trims($content.find('.related-info #link-report-intra span').text());
-        //演职员
-        let acting_staff = [];
-        $content.find('#celebrities .celebrities-list .celebrity').each((i, item) => {
-            let _acs = $(item).find('.info .name .name').text();
-            if (_acs) {
-                acting_staff.push(_acs);
-            }
-        });
-        //图片
-        let imgs = [];
-        $content.find('#related-pic .related-pic-bd li').each((i, item) => {
-            let _img = $(item).find('img').attr('src');
-            if (_img) {
-                imgs.push(_img);
-            }
-        });
+        let content_intro = trims($content.find('.related-info #link-report-intra span').first().text());
+
         return {
             title,
-            pic,
+            "image_url": pic,
             ...info,
             rating,
-            content_intro,
-            acting_staff,
-            imgs
+            "desc": content_intro
         }
     },
 
@@ -193,10 +151,20 @@ const Detail = {
                 key = trims(_keyArr[0]);
                 value = trims(_keyArr[1]);
             }
+
+            value = Detail.removeSuffixIfPresent(value, "更多...");  
+
             info[key] = value;
         });
         return info;
-    }
+    },
+
+    removeSuffixIfPresent(str, suffix) {  
+        if (str.endsWith(suffix)) {  
+            return str.slice(0, -suffix.length);  
+        }  
+        return str;  
+    } 
 }
 
 module.exports = Detail;

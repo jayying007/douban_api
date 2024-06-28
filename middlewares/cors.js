@@ -4,6 +4,7 @@ const whiteList = config.corsWhiteList;
 const { log } = require('../utils/utils');
 
 module.exports = function (req, res, next) {
+    console.log(req.headers.origin)
     if (req.headers && req.headers.origin && whiteList.indexOf(req.headers.origin) !== -1) {
         log('允许跨域：' + req.headers.origin);
         res.setHeader('Access-Control-Allow-Origin', req.headers.origin);

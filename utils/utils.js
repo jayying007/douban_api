@@ -45,5 +45,5 @@ exports.toNum = function (num, _default) {
 
 //去除字符串中的\n和空格
 exports.trims = function (str) {
-    return str ? str.replace(/[\\n\s]+/img, '') : str;
+    return str ? str.replace(/[\n\s]+/img, '') : str;
 }

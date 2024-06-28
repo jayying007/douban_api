@@ -72,12 +72,13 @@ class Game {
             //标题
             let title = _$.find('.title h3 a').text();
             //摘要
-            let tag = _$.find('.subject-cast').text();
+            let abstract = _$.find('.subject-cast').text();
+
             let _data = {
                 title,
                 rating,
-                tag,
-                "pic": cover,
+                abstract,
+                "image_url": cover,
                 "detail_url": decodedUrlParam
             };
             data.push(_data);
@@ -148,9 +149,9 @@ class Game {
         return {
             title,
             rating,
-            pic,
+            "image_url": pic,
             ...info,
-            "content_intro": desc
+            desc
         }
     }
 
